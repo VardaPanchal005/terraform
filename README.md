@@ -90,15 +90,7 @@ This returns the ALB DNS Name, e.g.:
 myalb-1234567890.ap-south-1.elb.amazonaws.com
 ```
 
-### 6. Application Load Balancer and Page Switching
-
-The ALB routes requests to the two EC2 instances in a round-robin manner:
-- **First request** → `webserver1`
-- **Second request** → `webserver2`
-
-Since each EC2 instance has a unique HTML page, refreshing the ALB URL will show different content from each instance.
-
-### 7. Initialize Terraform
+### 6. Initialize Terraform
 
 Run:
 ```bash
@@ -106,15 +98,15 @@ terraform init
 ```
 This downloads the required providers and sets up the environment.
 
-### 8. Review the Terraform Plan
+### 7. Review the Terraform Plan
 
 Run:
 ```bash
 terraform plan
 ```
-This shows the resources Terraform will create, modify, or delete.
+This shows the resources Terraform will create, modify, or delete and if there are any errors in it.
 
-### 9. Apply the Terraform Configuration
+### 8. Apply the Terraform Configuration
 
 Run:
 ```bash
@@ -122,13 +114,32 @@ terraform apply
 ```
 Type `yes` to confirm and deploy the infrastructure.
 
-### 10. Access the Application
+### 9. Access the Application
 
-Visit the ALB DNS Name in your browser:
+Visit the ALB DNS Name (which you will get in your load balancer on AWS) in your browser:
 ```plaintext
 http://myalb-1234567890.ap-south-1.elb.amazonaws.com
 ```
-This displays the HTML page served by the EC2 instances.
+This displays the HTML page served by the EC2 instances on each reload you will see both the pages simultaneously.
+
+### 10. Application Load Balancer and Page Switching
+The ALB routes requests to the two EC2 instances in a round-robin manner:
+- **First request** → `webserver1`
+- **Second request** → `webserver2`
+
+Since each EC2 instance has a unique HTML page, refreshing the ALB URL will show different content from each instance.
+
+When you access the application through the ALB DNS Name, you'll notice that the Application Load Balancer will route traffic to the two EC2 instances in a round-robin manner. This means:
+
+- **First Request**: The load balancer will send the first request to `webserver1` (the instance in `subnet1`).
+- **Second Request**: The next request will be routed to `webserver2` (the instance in `subnet2`).
+
+This alternation ensures that traffic is evenly distributed between the two instances. As a result, users may experience the following behavior:
+
+- **Page Switching**: On each reload or refresh of the page, the load balancer could serve different content (the HTML page from either `webserver1` or `webserver2`).
+- Since each EC2 instance has a unique `index.html` file served by Apache, the content on the page may be different, such as different instance IDs or custom text.
+
+The Application Load Balancer manages load by balancing traffic between the two instances, ensuring that neither instance becomes overloaded and that the application remains highly available and scalable.
 
 ### 11. Clean Up Resources
 
